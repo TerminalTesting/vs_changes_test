@@ -100,7 +100,7 @@ class VSChangesTest(unittest.TestCase):
         
         time.sleep(5)
         self.driver.find_element_by_class_name('addRsIb').click()
-        time.sleep(5)
+        time.sleep(10)
         #self.driver.execute_script("""$( '.input-collection' ).append( '<input style="display:none" checked="" name="ib[]" value="8d954cfc-0131-11e0-a3a6-0026188b0a94" type="checkbox">' )""")
         self.driver.find_elements_by_class_name('dynatree-checkbox')[7].click()
         time.sleep(5)
@@ -120,7 +120,7 @@ class VSChangesTest(unittest.TestCase):
         """ Удаление РС """
         time.sleep(5)
         self.driver.find_element_by_class_name('addRsIb').click()
-        time.sleep(5)
+        time.sleep(10)
         #self.driver.execute_script("""$( '.input-collection' ).empty()""")
         self.driver.find_elements_by_class_name('dynatree-checkbox')[7].click()
         time.sleep(5)
