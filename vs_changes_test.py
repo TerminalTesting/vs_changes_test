@@ -105,7 +105,7 @@ class VSChangesTest(unittest.TestCase):
         self.driver.find_elements_by_class_name('dynatree-checkbox')[7].click()
         time.sleep(5)
         self.driver.find_element_by_class_name('ui-dialog-buttonset').find_elements_by_tag_name('button')[0].click()
-        time.sleep(10)
+        time.sleep(15)
         self.driver.find_element_by_class_name('btn-primary').click()
         time.sleep(10)
         try:
@@ -125,7 +125,8 @@ class VSChangesTest(unittest.TestCase):
         self.driver.find_elements_by_class_name('dynatree-checkbox')[7].click()
         time.sleep(5)
         self.driver.find_element_by_class_name('ui-dialog-buttonset').find_elements_by_tag_name('button')[0].click()
-        time.sleep(10)
+        self.driver.find_element_by_class_name('ui-dialog-buttonset').find_elements_by_tag_name('button')[0].click()
+        time.sleep(15)
         self.driver.find_element_by_class_name('btn-primary').click()
         time.sleep(10)
         try:
