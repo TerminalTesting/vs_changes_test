@@ -124,6 +124,8 @@ class VSChangesTest(unittest.TestCase):
         self.driver.find_element_by_class_name('addRsIb').click()
         time.sleep(10)
         #self.driver.execute_script("""$( '.input-collection' ).empty()""")
+        self.driver.find_elements_by_class_name('dynatree-container')[1].find_elements_by_class_name('dynatree-expander')[7].click()
+        time.sleep(12)
         self.driver.find_elements_by_class_name('dynatree-checkbox')[7].click()
         time.sleep(5)
         self.driver.find_element_by_class_name('ui-dialog-buttonset').find_elements_by_tag_name('button')[0].click()
