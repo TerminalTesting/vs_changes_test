@@ -267,6 +267,7 @@ class VSChangesTest(unittest.TestCase):
         self.driver.find_element_by_link_text('AutotestVSName').click()
         time.sleep(5)
         self.driver.find_element_by_class_name('delete').click()
+        time.sleep(5)
         self.driver.switch_to_alert().accept()
         time.sleep(10)
         li = self.driver.find_element_by_class_name('dynatree-container').find_elements_by_tag_name('li')
