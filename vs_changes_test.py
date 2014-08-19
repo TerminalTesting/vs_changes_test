@@ -159,7 +159,7 @@ class VSChangesTest(unittest.TestCase):
 
         #Общие настройки
         self.driver.find_element_by_link_text(u'Общие настройки').click()
-        if not self.driver.find_element_by_id('categoryform_active').is_selected():
+        if self.driver.find_element_by_id('categoryform_active').is_selected():
             cnt += 1
             print 'Флаг активности не снялся'
             print
@@ -172,7 +172,7 @@ class VSChangesTest(unittest.TestCase):
             print 'Текст categoryform_alias не изменился - ', self.driver.find_element_by_id('categoryform_alias').get_attribute('value')
             print
         self.driver.find_element_by_id('categoryform_menuColumnNumber').click()
-        if self.driver.find_element_by_id('categoryform_menuColumnNumber').find_elements_by_tag_name('option')[1].get_attribute('selected') != 'selected':
+        if self.driver.find_element_by_id('categoryform_menuColumnNumber').find_elements_by_tag_name('option')[1].get_attribute('selected') != 'true':
             cnt += 1
             print 'Значение в categoryform_menuColumnNumber не изменилось - ', self.driver.find_element_by_id('categoryform_menuColumnNumber').find_elements_by_tag_name('option')[1].get_attribute('selected')
             print
