@@ -165,62 +165,62 @@ class VSChangesTest(unittest.TestCase):
             print
         if self.driver.find_element_by_id('categoryform_name').get_attribute('value') != 'AutotestVSName':
             cnt += 1
-            print 'Текст categoryform_name не изменился - ', self.driver.find_element_by_id('categoryform_name').get_attribute('value')
+            print 'Текст поля "Название" не изменился - ', self.driver.find_element_by_id('categoryform_name').get_attribute('value')
             print
         if self.driver.find_element_by_id('categoryform_alias').get_attribute('value') != 'AutotestVSAlias':
             cnt += 1
-            print 'Текст categoryform_alias не изменился - ', self.driver.find_element_by_id('categoryform_alias').get_attribute('value')
+            print 'Текст поля "Alias секции" не изменился - ', self.driver.find_element_by_id('categoryform_alias').get_attribute('value')
             print
         self.driver.find_element_by_id('categoryform_menuColumnNumber').click()
         if self.driver.find_element_by_id('categoryform_menuColumnNumber').find_elements_by_tag_name('option')[1].get_attribute('selected') != 'true':
             cnt += 1
-            print 'Значение в categoryform_menuColumnNumber не изменилось - ', self.driver.find_element_by_id('categoryform_menuColumnNumber').find_elements_by_tag_name('option')[1].get_attribute('selected')
+            print 'Значение в поле "Столбец в top меню" не изменилось - ', self.driver.find_element_by_id('categoryform_menuColumnNumber').find_elements_by_tag_name('option')[1].get_attribute('selected')
             print
         if self.driver.find_element_by_id('categoryform_sort').get_attribute('value') != '777':
             cnt += 1
-            print 'Значение в categoryform_sort не изменилось - ', self.driver.find_element_by_id('categoryform_sort').get_attribute('value')
+            print 'Значение в поле "Сортировка" не изменилось - ', self.driver.find_element_by_id('categoryform_sort').get_attribute('value')
             print
         if self.driver.find_element_by_id('categoryform_description').get_attribute('value') != 'AutotestVSDescription':
             cnt += 1
-            print 'Текст categoryform_description не изменился - ', self.driver.find_element_by_id('categoryform_description').get_attribute('value')
+            print 'Текст поля "Описание" не изменился - ', self.driver.find_element_by_id('categoryform_description').get_attribute('value')
             print
         if self.driver.find_element_by_id('categoryform_picture').get_attribute('value') != 'AutotestVSPicture':
             cnt += 1
-            print 'Текст categoryform_picture не изменился - ', self.driver.find_element_by_id('categoryform_picture').get_attribute('value')
+            print 'Текст поля "Изображение в меню" не изменился - ', self.driver.find_element_by_id('categoryform_picture').get_attribute('value')
             print
         
         if not self.driver.find_element_by_id('categoryform_flagBrand').is_selected():
             cnt += 1
-            print 'Флаг Brand не установился'
+            print 'Флаг "Наличие подбора по параметрам" не установился'
             print
         if not self.driver.find_element_by_id('categoryform_flagNew').is_selected():
             cnt += 1
-            print 'Флаг New не установился'
+            print 'Флаг "ВС-новинка" не установился'
             print
         if not self.driver.find_element_by_id('categoryform_flagBrandLevel').is_selected():
             cnt += 1
-            print 'Флаг BrandLevel не установился'
+            print 'Флаг "Брендовая категория" не установился'
             print
         if not self.driver.find_element_by_id('categoryform_flagHideBrandLevel').is_selected():
             cnt += 1
-            print 'Флаг HideBrandLevel не установился'
+            print 'Флаг "Скрыть брендовый уровень в топ-меню" не установился'
             print
         if self.driver.find_element_by_id('categoryform_flagTermShow').is_selected():
             cnt += 1
-            print 'Флаг TermShow не снялся'
+            print 'Флаг "Показывать для терминалов" не снялся'
             print
         if not self.driver.find_element_by_id('categoryform_flagSetGroup').is_selected():
             cnt += 1
-            print 'Флаг SetGroup не установился'
+            print 'Флаг "Группировать по данной ВС наборы" не установился'
             print
         if not self.driver.find_element_by_id('categoryform_showPromoBlock').is_selected():
             cnt += 1
-            print 'Флаг PromoBlock не установился'
+            print 'Флаг "Показывать товары в промо-блоке" не установился'
             print
         
         if self.driver.find_element_by_id('categoryform_externalLink').get_attribute('value') != 'AutotestVSLink':
             cnt += 1
-            print 'Текст externalLink не изменился - ', self.driver.find_element_by_id('categoryform_externalLink').get_attribute('value')
+            print 'Текст поля "Ссылка для перехода" не изменился - ', self.driver.find_element_by_id('categoryform_externalLink').get_attribute('value')
             print
 
         #Служебные настройки
@@ -238,27 +238,27 @@ class VSChangesTest(unittest.TestCase):
         self.driver.find_element_by_link_text(u'SEO - настройки').click()
         if self.driver.find_element_by_id('categoryform_metaTitle').get_attribute('value') != 'AutotestVSmetaTitle':
             cnt += 1
-            print 'Текст categoryform_metaTitle не изменился - ', self.driver.find_element_by_id('categoryform_metaTitle').get_attribute('value')
+            print 'Текст поля "Мета-тег. Title" не изменился - ', self.driver.find_element_by_id('categoryform_metaTitle').get_attribute('value')
             print
         if self.driver.find_element_by_id('categoryform_metaKeywords').get_attribute('value') != 'AutotestVSmetaKeywords':
             cnt += 1
-            print 'Текст categoryform_metaKeywords не изменился - ', self.driver.find_element_by_id('categoryform_metaKeywords').get_attribute('value')
+            print 'Текст поля "Мета-тег. Keywords" не изменился - ', self.driver.find_element_by_id('categoryform_metaKeywords').get_attribute('value')
             print
         if self.driver.find_element_by_id('categoryform_metaDescription').get_attribute('value') != 'AutotestVSmetaDescription':
             cnt += 1
-            print 'Текст categoryform_metaDescription не изменился - ', self.driver.find_element_by_id('categoryform_metaDescription').get_attribute('value')
+            print 'Текст поля "Мета-тег. Description" не изменился - ', self.driver.find_element_by_id('categoryform_metaDescription').get_attribute('value')
             print
         if self.driver.find_element_by_id('categoryform_metaH1').get_attribute('value') != 'AutotestVSmetaH1':
             cnt += 1
-            print 'Текст categoryform_metaH1 не изменился - ', self.driver.find_element_by_id('categoryform_metaH1').get_attribute('value')
+            print 'Текст поля "H1" не изменился - ', self.driver.find_element_by_id('categoryform_metaH1').get_attribute('value')
             print
         if self.driver.find_element_by_id('categoryform_singularName').get_attribute('value') != 'AutotestVSsingularName':
             cnt += 1
-            print 'Текст categoryform_singularName не изменился - ', self.driver.find_element_by_id('categoryform_singularName').get_attribute('value')
+            print 'Текст поля "Название ВС в единственном числе" не изменился - ', self.driver.find_element_by_id('categoryform_singularName').get_attribute('value')
             print
         if self.driver.find_element_by_id('categoryform_translitName').get_attribute('value') != 'AutotestVStranslitName':
             cnt += 1
-            print 'Текст categoryform_translitName не изменился - ', self.driver.find_element_by_id('categoryform_translitName').get_attribute('value')
+            print 'Текст поля "Название ВС в транслите (для брендов - в русскоязычном формате)" не изменился - ', self.driver.find_element_by_id('categoryform_translitName').get_attribute('value')
             print
 
         
