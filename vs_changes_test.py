@@ -89,7 +89,7 @@ class VSChangesTest(unittest.TestCase):
         name_input.clear()
         name_input.send_keys('AutotestVS')
         self.driver.find_elements_by_class_name('save')[1].click()
-        driver.refresh()
+        driver.refresh
         li = element(By.CLASS_NAME, 'dynatree-container').find_elements_by_tag_name('li')
         vs_names = [x.find_element_by_tag_name('a').text for x in li]
 
@@ -139,7 +139,7 @@ class VSChangesTest(unittest.TestCase):
         element(By.CLASS_NAME, 'addRsIb').click()
         time.sleep(10)
         #self.driver.execute_script("""$( '.input-collection' ).append( '<input style="display:none" checked="" name="ib[]" value="8d954cfc-0131-11e0-a3a6-0026188b0a94" type="checkbox">' )""")
-        element(By.CLASS_NAME, 'dynatree-checkbox')[2].click()
+        driver.find_elements_by_class_name('dynatree-checkbox')[2].click()
         time.sleep(5)
         element(By.CLASS_NAME, 'ui-dialog-buttonset').find_elements_by_tag_name('button')[0].click()
         time.sleep(15)
