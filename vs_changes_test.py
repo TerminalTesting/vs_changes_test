@@ -89,7 +89,7 @@ class VSChangesTest(unittest.TestCase):
         name_input.clear()
         name_input.send_keys('AutotestVS')
         self.driver.find_elements_by_class_name('save')[1].click()
-        driver.get('%sterminal/admin/site/terminal/tcategory/list' % self.SITE)
+        driver.refresh()
         li = element(By.CLASS_NAME, 'dynatree-container').find_elements_by_tag_name('li')
         vs_names = [x.find_element_by_tag_name('a').text for x in li]
 
