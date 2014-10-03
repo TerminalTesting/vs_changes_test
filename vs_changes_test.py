@@ -9,20 +9,15 @@ from selenium import webdriver
 
 
 class VSChangesTest(unittest.TestCase):
-    
-    SITE = 'http://nsk.%s/' % os.getenv('SITE')
-    HOST = os.getenv('HOST')
-    PORT = os.getenv('PORT')
-    SCHEMA = os.getenv('SCHEMA')
-    USER = os.getenv('USER')
-    PSWD = os.getenv('PSWD')
-    ARTSOURCE = '%sartifact/' % os.getenv('BUILD_URL')
-    #CONNECT_STRING = 'mysql://%s:%s@%s:%s/%s?charset=utf8' %(USER, PSWD, HOST, PORT, SCHEMA)
-    #engine = create_engine(CONNECT_STRING, echo=False) #Значение False параметра echo убирает отладочную информацию
-    #metadata = MetaData(engine)
-    driver = webdriver.Firefox()
 
-    os.system('find -iname \*.png -delete')
+    def setUp(self):
+        #delete old screenshot artifacts
+        os.system('find -iname \*.png -delete')
+    
+        self.SITE = 'http://nsk.%s/' % os.getenv('SITE')
+        self.ARTSOURCE = '%sartifact/' % os.getenv('BUILD_URL')
+        self.driver = webdriver.Firefox()
+        self.driver.implicitly_wait(5)
 
 
     def tearDown(self):
@@ -33,27 +28,66 @@ class VSChangesTest(unittest.TestCase):
         if sys.exc_info()[0]:   
             print sys.exc_info()[0]
 
+    def is_element_present(self, how, what, timeout=10):
+        """ Поиск элемента по локатору
+
+            По умолчанию таймаут 10 секунд, не влияет на скорость выполнения теста
+            если элемент найден, если нет - ждет его появления 10 сек
+            
+            Параметры:
+               how - метод поиска
+               what - локатор
+            Методы - атрибуты класса By:
+             |  CLASS_NAME = 'class name'
+             |  
+             |  CSS_SELECTOR = 'css selector'
+             |  
+             |  ID = 'id'
+             |  
+             |  LINK_TEXT = 'link text'
+             |  
+             |  NAME = 'name'
+             |  
+             |  PARTIAL_LINK_TEXT = 'partial link text'
+             |  
+             |  TAG_NAME = 'tag name'
+             |  
+             |  XPATH = 'xpath'
+                                             """
+	try:
+            return WebDriverWait(self.driver, timeout).until(EC.presence_of_element_located((how, what)))
+	except:
+            print u'Элемент не найден'
+	    print 'URL: ', self.driver.current_url
+	    print u'Метод поиска: ', how
+	    print u'Локатор: ', what
+	    screen_name = '%d.png' % int(time.time())
+	    self.driver.get_screenshot_as_file(screen_name)
+	    print u'Скриншот страницы: ', self.ARTSOURCE + screen_name
+	    raise Exception('ElementNotPresent')
+
     def test_vs(self):
-        self.driver.get('%slogin' % self.SITE)
-        self.driver.find_element_by_id('username').send_keys(os.getenv('AUTH'))
-        self.driver.find_element_by_id('password').send_keys(os.getenv('AUTHPASS'))
-        self.driver.find_element_by_class_name('btn-primary').click()
-        self.driver.get('%sterminal/admin/' % self.SITE)
-        time.sleep(5)
-        self.driver.find_element_by_partial_link_text(u'тестовый режим').click()
-        self.driver.get('%sterminal/admin/site/terminal/tcategory/list' % self.SITE)
+
+        driver = self.driver
+        element = self.is_element_present
+        
+        driver.get('%slogin' % self.SITE)
+        element(By.ID, 'username').send_keys(os.getenv('AUTH'))
+        element(By.ID, 'password').send_keys(os.getenv('AUTHPASS'))
+        element(By.CLASS_NAME, 'btn-primary').click()
+        driver.get('%sterminal/admin/' % self.SITE)
+        element(By.PARTIAL_LINK_TEXT, u'тестовый режим').click()
+        driver.get('%sterminal/admin/site/terminal/tcategory/list' % self.SITE)
 
         """ Добавление новой ВС """
         cnt = 0
-        time.sleep(10)
-        self.driver.find_element_by_class_name('add').click()
-        name_input = self.driver.find_element_by_class_name('input-tree-node')
+        element(By.CLASS_NAME, 'add').click()
+        name_input = element(By.CLASS_NAME, 'input-tree-node')
         name_input.clear()
         name_input.send_keys('AutotestVS')
         self.driver.find_elements_by_class_name('save')[1].click()
-        time.sleep(5)
-        self.driver.get('%sterminal/admin/site/terminal/tcategory/list' % self.SITE)
-        li = self.driver.find_element_by_class_name('dynatree-container').find_elements_by_tag_name('li')
+        driver.get('%sterminal/admin/site/terminal/tcategory/list' % self.SITE)
+        li = element(By.CLASS_NAME, 'dynatree-container').find_elements_by_tag_name('li')
         vs_names = [x.find_element_by_tag_name('a').text for x in li]
 
         if 'AutotestVS' not in vs_names:
@@ -65,166 +99,166 @@ class VSChangesTest(unittest.TestCase):
 
         """ Перемещение ВС """
         time.sleep(5)
-        self.driver.find_element_by_link_text('AutotestVS').click()
-        self.driver.find_element_by_link_text(u'Общие настройки').click()
+        element(By.LINK_TEXT, 'AutotestVS').click()
+        element(By.LINK_TEXT, u'Общие настройки').click()
         #self.driver.find_element_by_class_name('sonata-ba-collapsed').click()
-        self.driver.find_element_by_id('categoryform_parent').click()
-        self.driver.find_element_by_id('categoryform_parent').find_elements_by_tag_name('option')[2].click()
-        self.driver.find_element_by_class_name('btn-primary').click()
-        self.driver.find_element_by_link_text(u'Общие настройки').click()
-        option = self.driver.find_element_by_id('categoryform_parent').find_elements_by_tag_name('option')[2]
+        element(By.ID, 'categoryform_parent').click()
+        element(By.ID, 'categoryform_parent').find_elements_by_tag_name('option')[2].click()
+        element(By.CLASS_NAME, 'btn-primary').click()
+        element(By.LINK_TEXT, u'Общие настройки').click()
+        option = element(By.ID, 'categoryform_parent').find_elements_by_tag_name('option')[2]
 
         if not option.is_selected():
             cnt += 1
             print u'Ошибка при изменении уровня вложенности ВС'
-            self.driver.get_screenshot_as_file('vsNestingLevelChangingError.png')
+            driver.get_screenshot_as_file('vsNestingLevelChangingError.png')
             print u'Скриншот:\n' + self.ARTSOURCE + 'vsNestingLevelChangingError.png'
             print
 
         """ Перемещение ВС обратно """
         time.sleep(5)
-        self.driver.find_element_by_id('categoryform_parent').click()
-        self.driver.find_element_by_id('categoryform_parent').find_elements_by_tag_name('option')[0].click()
-        self.driver.find_element_by_class_name('btn-primary').click()
-        self.driver.find_element_by_link_text(u'Общие настройки').click()
-        option = self.driver.find_element_by_id('categoryform_parent').find_elements_by_tag_name('option')[0]
+        element(By.ID, 'categoryform_parent').click()
+        element(By.ID, 'categoryform_parent').find_elements_by_tag_name('option')[0].click()
+        element(By.CLASS_NAME, 'btn-primary').click()
+        element(By.LINK_TEXT, u'Общие настройки').click()
+        option = element(By.ID, 'categoryform_parent').find_elements_by_tag_name('option')[0]
 
         if not option.is_selected():
             cnt += 1
             print u'Ошибка при изменении уровня вложенности ВС, возврат к прежним настройкам'
-            self.driver.get_screenshot_as_file('vsNestingLevelChangingError.png')
+            driver.get_screenshot_as_file('vsNestingLevelChangingError.png')
             print u'Скриншот:\n' + self.ARTSOURCE + 'vsNestingLevelChangingError.png'
             print
 
         """ Добавление РС """
         
         time.sleep(5)
-        self.driver.find_element_by_class_name('addRsIb').click()
+        element(By.CLASS_NAME, 'addRsIb').click()
         time.sleep(10)
         #self.driver.execute_script("""$( '.input-collection' ).append( '<input style="display:none" checked="" name="ib[]" value="8d954cfc-0131-11e0-a3a6-0026188b0a94" type="checkbox">' )""")
-        self.driver.find_elements_by_class_name('dynatree-checkbox')[2].click()
+        element(By.CLASS_NAME, 'dynatree-checkbox')[2].click()
         time.sleep(5)
-        self.driver.find_element_by_class_name('ui-dialog-buttonset').find_elements_by_tag_name('button')[0].click()
+        element(By.CLASS_NAME, 'ui-dialog-buttonset').find_elements_by_tag_name('button')[0].click()
         time.sleep(15)
-        self.driver.find_element_by_class_name('btn-primary').click()
+        element(By.CLASS_NAME, 'btn-primary').click()
         time.sleep(10)
         try:
-            self.driver.find_element_by_class_name('adminVsNoChanged')
+            element(By.CLASS_NAME, 'adminVsNoChanged')
         except:
             cnt += 1
             print u'Ошибка при добавлении РС'
-            self.driver.get_screenshot_as_file('vsRsAddError.png')
+            driver.get_screenshot_as_file('vsRsAddError.png')
             print u'Скриншот:\n' + self.ARTSOURCE + 'vsRsAddError.png'
             print
 
         """ Изменение данных ВС """
         #Общие настройки
-        self.driver.find_element_by_link_text(u'Общие настройки').click()
-        self.driver.find_element_by_id('categoryform_active').click()
-        self.driver.find_element_by_id('categoryform_name').clear()
-        self.driver.find_element_by_id('categoryform_name').send_keys('AutotestVSName')
-        self.driver.find_element_by_id('categoryform_alias').clear()
-        self.driver.find_element_by_id('categoryform_alias').send_keys('AutotestVSAlias')
-        self.driver.find_element_by_id('categoryform_menuColumnNumber').click()
-        self.driver.find_element_by_id('categoryform_menuColumnNumber').find_elements_by_tag_name('option')[1].click()
-        self.driver.execute_script("""$( '#categoryform_sort' ).attr('value', 777 )""")
-        self.driver.find_element_by_id('categoryform_description').send_keys('AutotestVSDescription')
-        self.driver.find_element_by_id('categoryform_picture').send_keys('AutotestVSPicture')
+        element(By.LINK_TEXT, u'Общие настройки').click()
+        element(By.ID, 'categoryform_active').click()
+        element(By.ID, 'categoryform_name').clear()
+        element(By.ID, 'categoryform_name').send_keys('AutotestVSName')
+        element(By.ID, 'categoryform_alias').clear()
+        element(By.ID, 'categoryform_alias').send_keys('AutotestVSAlias')
+        element(By.ID, 'categoryform_menuColumnNumber').click()
+        element(By.ID, 'categoryform_menuColumnNumber').find_elements_by_tag_name('option')[1].click()
+        driver.execute_script("""$( '#categoryform_sort' ).attr('value', 777 )""")
+        element(By.ID, 'categoryform_description').send_keys('AutotestVSDescription')
+        element(By.ID, 'categoryform_picture').send_keys('AutotestVSPicture')
         
-        self.driver.find_element_by_id('categoryform_flagBrand').click()
-        self.driver.find_element_by_id('categoryform_flagNew').click()
-        self.driver.find_element_by_id('categoryform_flagBrandLevel').click()
-        self.driver.find_element_by_id('categoryform_flagHideBrandLevel').click()
-        self.driver.find_element_by_id('categoryform_flagTermShow').click()
-        self.driver.find_element_by_id('categoryform_flagSetGroup').click()
-        self.driver.find_element_by_id('categoryform_showPromoBlock').click()
+        element(By.ID, 'categoryform_flagBrand').click()
+        element(By.ID, 'categoryform_flagNew').click()
+        element(By.ID, 'categoryform_flagBrandLevel').click()
+        element(By.ID, 'categoryform_flagHideBrandLevel').click()
+        element(By.ID, 'categoryform_flagTermShow').click()
+        element(By.ID, 'categoryform_flagSetGroup').click()
+        element(By.ID, 'categoryform_showPromoBlock').click()
         
-        self.driver.find_element_by_id('categoryform_externalLink').send_keys('AutotestVSLink')
+        element(By.ID, 'categoryform_externalLink').send_keys('AutotestVSLink')
 
         #Служебные настройки
-        self.driver.find_element_by_link_text(u'Служебные настройки').click()
+        element(By.LINK_TEXT, u'Служебные настройки').click()
         #self.driver.find_element_by_id('categoryform_oldId').send_keys('AutotestVSoldId')
         #self.driver.find_element_by_id('categoryform_oldAlias').send_keys('AutotestVSoldAlias')
 
         #SEO - настройки
-        self.driver.find_element_by_link_text(u'SEO - настройки').click()
-        self.driver.find_element_by_id('categoryform_metaTitle').send_keys('AutotestVSmetaTitle')
-        self.driver.find_element_by_id('categoryform_metaKeywords').send_keys('AutotestVSmetaKeywords')
-        self.driver.find_element_by_id('categoryform_metaDescription').send_keys('AutotestVSmetaDescription')
-        self.driver.find_element_by_id('categoryform_metaH1').send_keys('AutotestVSmetaH1')
-        self.driver.find_element_by_id('categoryform_singularName').send_keys('AutotestVSsingularName')
-        self.driver.find_element_by_id('categoryform_translitName').send_keys('AutotestVStranslitName')
+        element(By.LINK_TEXT, u'SEO - настройки').click()
+        element(By.ID, 'categoryform_metaTitle').send_keys('AutotestVSmetaTitle')
+        element(By.ID, 'categoryform_metaKeywords').send_keys('AutotestVSmetaKeywords')
+        element(By.ID, 'categoryform_metaDescription').send_keys('AutotestVSmetaDescription')
+        element(By.ID, 'categoryform_metaH1').send_keys('AutotestVSmetaH1')
+        element(By.ID, 'categoryform_singularName').send_keys('AutotestVSsingularName')
+        element(By.ID, 'categoryform_translitName').send_keys('AutotestVStranslitName')
         
-        self.driver.find_element_by_class_name('btn-primary').click()#save changes
+        element(By.CLASS_NAME, 'btn-primary').click()#save changes
 
         #Общие настройки
-        self.driver.find_element_by_link_text(u'Общие настройки').click()
-        if self.driver.find_element_by_id('categoryform_active').is_selected():
+        element(By.LINK_TEXT, u'Общие настройки').click()
+        if element(By.ID, 'categoryform_active').is_selected():
             cnt += 1
             print 'Флаг активности не снялся'
             print
-        if self.driver.find_element_by_id('categoryform_name').get_attribute('value') != 'AutotestVSName':
+        if element(By.ID, 'categoryform_name').get_attribute('value') != 'AutotestVSName':
             cnt += 1
-            print 'Текст поля "Название" не изменился - ', self.driver.find_element_by_id('categoryform_name').get_attribute('value')
+            print 'Текст поля "Название" не изменился - ', element(By.ID, 'categoryform_name').get_attribute('value')
             print
-        if self.driver.find_element_by_id('categoryform_alias').get_attribute('value') != 'AutotestVSAlias':
+        if element(By.ID, 'categoryform_alias').get_attribute('value') != 'AutotestVSAlias':
             cnt += 1
-            print 'Текст поля "Alias секции" не изменился - ', self.driver.find_element_by_id('categoryform_alias').get_attribute('value')
+            print 'Текст поля "Alias секции" не изменился - ', element(By.ID, 'categoryform_alias').get_attribute('value')
             print
-        self.driver.find_element_by_id('categoryform_menuColumnNumber').click()
-        if self.driver.find_element_by_id('categoryform_menuColumnNumber').find_elements_by_tag_name('option')[1].get_attribute('selected') != 'true':
+        element(By.ID, 'categoryform_menuColumnNumber').click()
+        if element(By.ID, 'categoryform_menuColumnNumber').find_elements_by_tag_name('option')[1].get_attribute('selected') != 'true':
             cnt += 1
-            print 'Значение в поле "Столбец в top меню" не изменилось - ', self.driver.find_element_by_id('categoryform_menuColumnNumber').find_elements_by_tag_name('option')[1].get_attribute('selected')
+            print 'Значение в поле "Столбец в top меню" не изменилось - ', element(By.ID, 'categoryform_menuColumnNumber').find_elements_by_tag_name('option')[1].get_attribute('selected')
             print
-        if self.driver.find_element_by_id('categoryform_sort').get_attribute('value') != '777':
+        if element(By.ID, 'categoryform_sort').get_attribute('value') != '777':
             cnt += 1
-            print 'Значение в поле "Сортировка" не изменилось - ', self.driver.find_element_by_id('categoryform_sort').get_attribute('value')
+            print 'Значение в поле "Сортировка" не изменилось - ', element(By.ID, 'categoryform_sort').get_attribute('value')
             print
-        if self.driver.find_element_by_id('categoryform_description').get_attribute('value') != 'AutotestVSDescription':
+        if element(By.ID, 'categoryform_description').get_attribute('value') != 'AutotestVSDescription':
             cnt += 1
-            print 'Текст поля "Описание" не изменился - ', self.driver.find_element_by_id('categoryform_description').get_attribute('value')
+            print 'Текст поля "Описание" не изменился - ', element(By.ID, 'categoryform_description').get_attribute('value')
             print
-        if self.driver.find_element_by_id('categoryform_picture').get_attribute('value') != 'AutotestVSPicture':
+        if element(By.ID, 'categoryform_picture').get_attribute('value') != 'AutotestVSPicture':
             cnt += 1
-            print 'Текст поля "Изображение в меню" не изменился - ', self.driver.find_element_by_id('categoryform_picture').get_attribute('value')
+            print 'Текст поля "Изображение в меню" не изменился - ', element(By.ID, 'categoryform_picture').get_attribute('value')
             print
         
-        if not self.driver.find_element_by_id('categoryform_flagBrand').is_selected():
+        if not element(By.ID, 'categoryform_flagBrand').is_selected():
             cnt += 1
             print 'Флаг "Наличие подбора по параметрам" не установился'
             print
-        if not self.driver.find_element_by_id('categoryform_flagNew').is_selected():
+        if not element(By.ID, 'categoryform_flagNew').is_selected():
             cnt += 1
             print 'Флаг "ВС-новинка" не установился'
             print
-        if not self.driver.find_element_by_id('categoryform_flagBrandLevel').is_selected():
+        if not element(By.ID, 'categoryform_flagBrandLevel').is_selected():
             cnt += 1
             print 'Флаг "Брендовая категория" не установился'
             print
-        if not self.driver.find_element_by_id('categoryform_flagHideBrandLevel').is_selected():
+        if not element(By.ID, 'categoryform_flagHideBrandLevel').is_selected():
             cnt += 1
             print 'Флаг "Скрыть брендовый уровень в топ-меню" не установился'
             print
-        if self.driver.find_element_by_id('categoryform_flagTermShow').is_selected():
+        if element(By.ID, 'categoryform_flagTermShow').is_selected():
             cnt += 1
             print 'Флаг "Показывать для терминалов" не снялся'
             print
-        if not self.driver.find_element_by_id('categoryform_flagSetGroup').is_selected():
+        if not element(By.ID, 'categoryform_flagSetGroup').is_selected():
             cnt += 1
             print 'Флаг "Группировать по данной ВС наборы" не установился'
             print
-        if not self.driver.find_element_by_id('categoryform_showPromoBlock').is_selected():
+        if not element(By.ID, 'categoryform_showPromoBlock').is_selected():
             cnt += 1
             print 'Флаг "Показывать товары в промо-блоке" не установился'
             print
         
-        if self.driver.find_element_by_id('categoryform_externalLink').get_attribute('value') != 'AutotestVSLink':
+        if element(By.ID, 'categoryform_externalLink').get_attribute('value') != 'AutotestVSLink':
             cnt += 1
-            print 'Текст поля "Ссылка для перехода" не изменился - ', self.driver.find_element_by_id('categoryform_externalLink').get_attribute('value')
+            print 'Текст поля "Ссылка для перехода" не изменился - ', element(By.ID, 'categoryform_externalLink').get_attribute('value')
             print
 
         #Служебные настройки
-        self.driver.find_element_by_link_text(u'Служебные настройки').click()
+        element(By.LINK_TEXT, u'Служебные настройки').click()
         #if self.driver.find_element_by_id('categoryform_oldId').get_attribute('value') != 'AutotestVSoldId':
         #    cnt += 1
         #    print 'Текст categoryform_oldId не изменился - ', self.driver.find_element_by_id('categoryform_oldId').get_attribute('value')
@@ -235,42 +269,40 @@ class VSChangesTest(unittest.TestCase):
         #    print
 
         #SEO - настройки
-        self.driver.find_element_by_link_text(u'SEO - настройки').click()
-        if self.driver.find_element_by_id('categoryform_metaTitle').get_attribute('value') != 'AutotestVSmetaTitle':
+        element(By.LINK_TEXT, u'SEO - настройки').click()
+        if element(By.ID, 'categoryform_metaTitle').get_attribute('value') != 'AutotestVSmetaTitle':
             cnt += 1
-            print 'Текст поля "Мета-тег. Title" не изменился - ', self.driver.find_element_by_id('categoryform_metaTitle').get_attribute('value')
+            print 'Текст поля "Мета-тег. Title" не изменился - ', element(By.ID, 'categoryform_metaTitle').get_attribute('value')
             print
-        if self.driver.find_element_by_id('categoryform_metaKeywords').get_attribute('value') != 'AutotestVSmetaKeywords':
+        if element(By.ID, 'categoryform_metaKeywords').get_attribute('value') != 'AutotestVSmetaKeywords':
             cnt += 1
-            print 'Текст поля "Мета-тег. Keywords" не изменился - ', self.driver.find_element_by_id('categoryform_metaKeywords').get_attribute('value')
+            print 'Текст поля "Мета-тег. Keywords" не изменился - ', element(By.ID, 'categoryform_metaKeywords').get_attribute('value')
             print
-        if self.driver.find_element_by_id('categoryform_metaDescription').get_attribute('value') != 'AutotestVSmetaDescription':
+        if element(By.ID, 'categoryform_metaDescription').get_attribute('value') != 'AutotestVSmetaDescription':
             cnt += 1
-            print 'Текст поля "Мета-тег. Description" не изменился - ', self.driver.find_element_by_id('categoryform_metaDescription').get_attribute('value')
+            print 'Текст поля "Мета-тег. Description" не изменился - ', element(By.ID, 'categoryform_metaDescription').get_attribute('value')
             print
-        if self.driver.find_element_by_id('categoryform_metaH1').get_attribute('value') != 'AutotestVSmetaH1':
+        if element(By.ID, 'categoryform_metaH1').get_attribute('value') != 'AutotestVSmetaH1':
             cnt += 1
-            print 'Текст поля "H1" не изменился - ', self.driver.find_element_by_id('categoryform_metaH1').get_attribute('value')
+            print 'Текст поля "H1" не изменился - ', element(By.ID, 'categoryform_metaH1').get_attribute('value')
             print
-        if self.driver.find_element_by_id('categoryform_singularName').get_attribute('value') != 'AutotestVSsingularName':
+        if element(By.ID, 'categoryform_singularName').get_attribute('value') != 'AutotestVSsingularName':
             cnt += 1
-            print 'Текст поля "Название ВС в единственном числе" не изменился - ', self.driver.find_element_by_id('categoryform_singularName').get_attribute('value')
+            print 'Текст поля "Название ВС в единственном числе" не изменился - ', element(By.ID, 'categoryform_singularName').get_attribute('value')
             print
-        if self.driver.find_element_by_id('categoryform_translitName').get_attribute('value') != 'AutotestVStranslitName':
+        if element(By.ID, 'categoryform_translitName').get_attribute('value') != 'AutotestVStranslitName':
             cnt += 1
-            print 'Текст поля "Название ВС в транслите (для брендов - в русскоязычном формате)" не изменился - ', self.driver.find_element_by_id('categoryform_translitName').get_attribute('value')
+            print 'Текст поля "Название ВС в транслите (для брендов - в русскоязычном формате)" не изменился - ', element(By.ID, 'categoryform_translitName').get_attribute('value')
             print
 
         
 
         """ Удаление ВС """
-        self.driver.find_element_by_link_text('AutotestVSName').click()
-        time.sleep(5)
-        self.driver.find_element_by_class_name('delete').click()
-        time.sleep(5)
-        self.driver.switch_to_alert().accept()
+        element(By.LINK_TEXT, 'AutotestVSName').click()
+        element(By.CLASS_NAME, 'delete').click()
+        driver.switch_to_alert().accept()
         time.sleep(10)
-        li = self.driver.find_element_by_class_name('dynatree-container').find_elements_by_tag_name('li')
+        li = element(By.CLASS_NAME, 'dynatree-container').find_elements_by_tag_name('li')
         vs_names = [x.find_element_by_tag_name('a').text for x in li]
 
         if 'AutotestVSName' in vs_names:
