@@ -307,6 +307,7 @@ class VSChangesTest(unittest.TestCase):
         element(By.CLASS_NAME, 'delete').click()
         driver.switch_to_alert().accept()
         time.sleep(10)
+        driver.refresh()
         li = element(By.CLASS_NAME, 'dynatree-container').find_elements_by_tag_name('li')
         vs_names = [x.find_element_by_tag_name('a').text for x in li]
 
